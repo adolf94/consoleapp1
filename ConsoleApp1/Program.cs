@@ -12,11 +12,12 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            const string password = "secret-key";
-            string encrypted = Encrypt(password, "sensitive information");
+            const string password = "DoCKvdLslTuB4y3EZlKate7XMottHski1LmyqJHvUhs=";
+						string encrypted = Encrypt(password, "sensitive information");
             Console.WriteLine("Encrypted Data: " + encrypted);
 
-            string decrypted = Decrypt(password, encrypted);
+            //string decrypted = Decrypt(password, encrypted);
+            string decrypted = Decrypt(password, "KWHUSHfJoog/X5QD7S7ANzwzaQ7rfEUgbmRREZ1Z5huKrqEYC2/QvISETSvyU8wm");
             Console.WriteLine("Decrypted Data: " + decrypted);
             Console.ReadLine();
         }
@@ -42,24 +43,37 @@ namespace ConsoleApp1
                 {
                     byte[] plainBytes = Encoding.UTF8.GetBytes(data);
                     byte[] encryptedBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+										Console.WriteLine(Convert.ToBase64String(iv));
+										Console.WriteLine(iv.Length);
 
-                    Console.WriteLine(Convert.ToBase64String(encryptedBytes));
-                    Console.WriteLine(Convert.ToBase64String(iv));
+										Console.WriteLine(Convert.ToBase64String(encryptedBytes));
+                    Console.WriteLine(encryptedBytes.Length);
                     //string encryptedHex = BitConverter.ToString(iv).Replace("-", string.Empty) + BitConverter.ToString(encryptedBytes).Replace("-", string.Empty);
-                    return Convert.ToBase64String(iv) + Convert.ToBase64String(encryptedBytes);
-                    //return encryptedHex;
-                }
+                    byte[] plainBytesOutput = iv.Concat(encryptedBytes).ToArray();
+
+                    return Convert.ToBase64String(plainBytesOutput);
+
+								}
             }
         }
 
         private static string Decrypt(string password, string encryptedHex)
         {
-            //Array.Copy(StringToByteArray(encryptedHex.Substring(0, 32)), iv, 16);
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(encryptedHex.Substring(16));
+            byte[] encryptedSrcBytes = Convert.FromBase64String(encryptedHex);
 
-            byte[] iv = bytes.Take(16).ToArray();
-            byte[] encryptedBytes = bytes.Skip(16).ToArray();
-            byte[] key = KeyDerivation.Pbkdf2(password, iv, KeyDerivationPrf.HMACSHA1, 1000, 16);
+            byte[] iv = encryptedSrcBytes.Take(16).ToArray();
+            byte[] encryptedBytes = encryptedSrcBytes.Skip(16).ToArray();
+            //Array.Copy(StringToByteArray(encryptedHex.Substring(0, 32)), iv, 16);
+            //byte[] bytes = System.Text.Encoding.UTF8.GetBytes(encryptedHex.Substring(16));
+            //string ivstring = encryptedHex.Substring(0, 24);
+            //string encryptstringa = encryptedHex.Substring(24);
+
+
+
+            //byte[] iv = Convert.FromBase64String(ivstring);
+            //      byte[] encryptedBytes = Convert.FromBase64String(encryptstringa);
+            //byte[] key = KeyDerivation.Pbkdf2(password, iv, KeyDerivationPrf.HMACSHA1, 1000, 16);
+            byte[] key = Convert.FromBase64String(password);
 
             Console.WriteLine(Convert.ToBase64String(encryptedBytes));
             Console.WriteLine(Convert.ToBase64String(iv));
